@@ -8,7 +8,7 @@ defmodule LinkExtractor do
   end
 
   def get_links do
-    LinkExtractor.Collector.get_links
+    Agent.get(:collector, &(&1))
   end
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
@@ -16,8 +16,7 @@ defmodule LinkExtractor do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    {:ok, pid} = LinkExtractor.Collector.start_link
-    Process.register(pid, :collector)
+    {:ok, pid} = Agent.start_link(fn -> [] end, name: :collector)
 
     pool_options = [
       name: {:local, :link_extractor_pool},

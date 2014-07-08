@@ -17,8 +17,8 @@ defmodule LinkExtractor.Worker do
 
   def handle_cast({:handle_message, message, return_pid}, state) do
     extract_links(message)
-    |> Enum.map(fn(link) ->
-      LinkExtractor.Collector.add_link(link)
+    |> Enum.map(fn link ->
+      Agent.update(:collector, &([link|&1]))
     end)
     {:noreply, state}
   end
