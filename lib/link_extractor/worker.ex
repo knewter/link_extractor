@@ -27,8 +27,6 @@ defmodule LinkExtractor.Worker do
   def extract_links(message) do
     Regex.scan(~r/https?:\/\/[^ $\n]*/, message)
     |> Enum.map(&hd/1)
-    |> Enum.map(fn(url) ->
-      %Link{url: url}
-    end)
+    |> Enum.map(&(%Link{url: &1}))
   end
 end
