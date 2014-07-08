@@ -16,8 +16,6 @@ defmodule LinkExtractor do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    {:ok, pid} = Agent.start_link(fn -> [] end, name: :collector)
-
     pool_options = [
       name: {:local, :link_extractor_pool},
       worker_module: LinkExtractor.Worker,
@@ -27,7 +25,8 @@ defmodule LinkExtractor do
 
     children = [
       # Define workers and child supervisors to be supervised
-      :poolboy.child_spec(:link_extractor_pool, pool_options, [])
+      :poolboy.child_spec(:link_extractor_pool, pool_options, []),
+      worker(Agent, [fn -> [] end, [name: :collector]])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
