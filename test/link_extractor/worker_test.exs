@@ -7,7 +7,8 @@ defmodule LinkExtractor.WorkerTest do
   """
 
   @expected_link %Link{
-    url: "https://github.com/kien/ctrlp.vim"
+    url: "https://github.com/kien/ctrlp.vim",
+    title: "kien/ctrlp.vim · GitHub"
   }
 
   test "extracts links from messages" do

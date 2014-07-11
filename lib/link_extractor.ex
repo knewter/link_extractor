@@ -1,9 +1,9 @@
 defmodule LinkExtractor do
   use Application
 
-  def inject(message, return_pid) do
+  def inject(message) do
     :poolboy.transaction(:link_extractor_pool, fn(worker) ->
-      LinkExtractor.Worker.handle_message(worker, message, return_pid)
+      LinkExtractor.Worker.handle_message(worker, message)
     end)
   end
 
@@ -24,7 +24,6 @@ defmodule LinkExtractor do
     ]
 
     children = [
-      # Define workers and child supervisors to be supervised
       :poolboy.child_spec(:link_extractor_pool, pool_options, []),
       worker(Agent, [fn -> [] end, [name: :collector]])
     ]
@@ -34,8 +33,4 @@ defmodule LinkExtractor do
     opts = [strategy: :one_for_one, name: LinkExtractor.Supervisor]
     Supervisor.start_link(children, opts)
   end
-end
-
-defmodule LinkExtractor.Link do
-  defstruct url: ""
 end

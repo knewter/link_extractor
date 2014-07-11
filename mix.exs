@@ -12,7 +12,7 @@ defmodule LinkExtractor.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [],
+    [applications: [:httpoison],
      mod: {LinkExtractor, []}]
   end
 
@@ -27,7 +27,9 @@ defmodule LinkExtractor.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     [
-      {:poolboy, "1.2.1"}
+      {:poolboy, "~> 1.2.1"},
+      {:httpoison, "~> 0.3.0"},
+      {:hackney, github: "benoitc/hackney"}
     ]
   end
 end

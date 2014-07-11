@@ -7,18 +7,18 @@ defmodule LinkExtractorTest do
 
   Ctrl-p: https://github.com/kien/ctrlp.vim
 
-  That is probably my absolute favorite vim plugin.
-
-  And there's NerdTree for browsing the file tree. 
+  That is probably my absolute favorite vim plugin
   """
 
   @expected_link %Link{
-    url: "https://github.com/kien/ctrlp.vim"
+    url: "https://github.com/kien/ctrlp.vim",
+    title: "kien/ctrlp.vim · GitHub"
   }
 
-  test "when text is emitted into the system, messages come out containing the links in that text" do
-    LinkExtractor.inject @message, self
-    :timer.sleep 1000
+  test "when text is injected into the system, those links are stored" do
+    LinkExtractor.inject @message
+    :timer.sleep 3000
     assert LinkExtractor.get_links == [@expected_link]
   end
+
 end
