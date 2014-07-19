@@ -1,14 +1,13 @@
-defmodule LinkExtractor.Worker do
+defmodule LinkExtractor.LinkHandler do
   use GenServer
   alias LinkExtractor.Link
-  @url_regex ~r(https?://[^ $\n]*)
 
   def start_link(_options) do
     GenServer.start_link(__MODULE__, :ok, [])
   end
 
-  def handle_message(server, message) do
-    GenServer.cast(server, {:handle_message, message})
+  def handle_link(server, link) do
+    GenServer.call(server, {:handle_link, link})
   end
 
   ## Server callbacks
@@ -16,19 +15,10 @@ defmodule LinkExtractor.Worker do
     {:ok, []}
   end
 
-  def handle_cast({:handle_message, message}, state) do
-    extract_links(message)
-    |> Enum.map(fn link ->
-      Agent.update(:collector, &([link|&1]))
-    end)
-    {:noreply, state}
-  end
-
-  def extract_links(message) do
-    Regex.scan(@url_regex, message)
-    |> Enum.map(&hd/1)
-    |> Enum.map(&(%Link{url: &1}))
-    |> Enum.map(&add_title/1)
+  def handle_call({:handle_link, link}, _from, state) do
+    link_with_title = add_title(link)
+    Agent.update(:collector, &([link_with_title|&1]))
+    {:reply, :ok, state}
   end
 
   defp add_title(link=%Link{url: url}) do

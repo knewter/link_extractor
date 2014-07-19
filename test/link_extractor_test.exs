@@ -5,6 +5,8 @@ defmodule LinkExtractorTest do
   @message """
   Augie,
 
+  bad link - http://nope
+
   Ctrl-p: http://github.com/kien/ctrlp.vim
 
   That is probably my absolute favorite vim plugin

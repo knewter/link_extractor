@@ -2,8 +2,14 @@ defmodule LinkExtractor do
   use Application
 
   def inject(message) do
-    :poolboy.transaction(:link_extractor_pool, fn(worker) ->
-      LinkExtractor.Worker.handle_message(worker, message)
+    :poolboy.transaction(:link_extractor_message_handler_pool, fn(worker) ->
+      LinkExtractor.MessageHandler.handle_message(worker, message)
+    end)
+  end
+
+  def handle_link(link) do
+    :poolboy.transaction(:link_extractor_link_handler_pool, fn(worker) ->
+      LinkExtractor.LinkHandler.handle_link(worker, link)
     end)
   end
 
@@ -16,15 +22,23 @@ defmodule LinkExtractor do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    pool_options = [
-      name: {:local, :link_extractor_pool},
-      worker_module: LinkExtractor.Worker,
+    message_handler_pool_options = [
+      name: {:local, :link_extractor_message_handler_pool},
+      worker_module: LinkExtractor.MessageHandler,
+      size: 5,
+      max_overflow: 10
+    ]
+
+    link_handler_pool_options = [
+      name: {:local, :link_extractor_link_handler_pool},
+      worker_module: LinkExtractor.LinkHandler,
       size: 5,
       max_overflow: 10
     ]
 
     children = [
-      :poolboy.child_spec(:link_extractor_pool, pool_options, []),
+      :poolboy.child_spec(:link_extractor_message_handler_pool, message_handler_pool_options, []),
+      :poolboy.child_spec(:link_extractor_link_handler_pool, link_handler_pool_options, []),
       worker(Agent, [fn -> [] end, [name: :collector]])
     ]
 
